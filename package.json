@@ -1,5 +1,5 @@
 {
-  "name": "astro-landing-page",
+  "name": "sudeep-portfolio",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -23,6 +23,8 @@
     "tailwindcss-fluid-type": "^1.3.3"
   },
   "dependencies": {
-    "micromodal": "^0.4.10"
+    "@sudeepg95/legendary-cursor": "^1.0.5",
+    "micromodal": "^0.4.10",
+    "ogl": "^0.0.99"
   }
 }
