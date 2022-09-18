@@ -1,22 +1,19 @@
 ---
 import { Icon } from "astro-icon";
-import ThemeSwitcher from "~/components/theme-switcher.astro";
+import ThemeSwitcher from "~/components/dumb/theme-switcher.astro";
 
 const navItems = [
+  { title: "Skills", url: "#skills" },
   { title: "Features", url: "#features" },
-  { title: "Compatibility", url: "#compatibility" },
   { title: "Showcase", url: "#showcase" },
 ];
 ---
 
 <header
   id="page-header"
-  class="absolute bottom-0 z-10 flex items-center justify-between w-full px-8 py-4 text-white border-b border-transparent"
+  class="absolute bottom-0 z-10 flex items-center justify-between w-full px-8 py-4 text-default border-b border-transparent bg-default"
 >
-  <a class="flex items-center gap-3 hover:!text-default" href="#">
-    <h1 class="sr-only">Astro</h1>
-    <Icon name="logomark" class="h-10" />
-    <Icon name="wordmark" class="hidden h-4 sm:block" />
+  <a class="flex items-center gap-3 hover:!text-default">
   </a>
   <div>
     <div class="flex items-center gap-6">
@@ -56,9 +53,6 @@ const navItems = [
               <Icon pack="mdi" name="close" class="h-8" />
             </button>
           </header>
-          <div class="flex justify-center">
-            <Icon name="logomark" class="h-16" />
-          </div>
           <nav>
             <ul class="flex flex-col">
               {
@@ -123,7 +117,7 @@ const navItems = [
 <style>
   .fixed-header {
     @apply fixed top-0 bottom-auto;
-    @apply text-default bg-default border-default;
+    @apply text-default;
   }
   .modal.is-open {
     @apply block;

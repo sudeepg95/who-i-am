@@ -1,6 +1,6 @@
 ---
 import { Icon } from "astro-icon";
-const { title, data, url } = Astro.props;
+const { title, data } = Astro.props;
 ---
 
 <div class="w-full max-w-6xl space-y-2">
@@ -14,7 +14,7 @@ const { title, data, url } = Astro.props;
       {
         data.map(({ title, icon, url }) => (
           <li>
-            <a class="flex flex-col items-center gap-2" href={url}>
+            <a class="flex flex-col items-center gap-2" href={url} target="_blank">
               <Icon class="h-12" name={icon} />
               <span>{title}</span>
             </a>
@@ -23,7 +23,5 @@ const { title, data, url } = Astro.props;
       }
     </ul>
   </div>
-  <p class="text-sm text-right">
-    <a class="text-primary" href={url}> ...and more &rarr;</a>
-  </p>
+  <p class="text-sm text-right">...and more &rarr;</p>
 </div>
