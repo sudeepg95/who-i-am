@@ -1,8 +1,6 @@
-# Astro Landing Page
+# Sudeep's Portfolio Website
 
-An Astro + Tailwind CSS starter kit for landing pages.
-
-![Screenshots of Astro Landing Page](screenshots.jpg)
+This is my Portfolio website built using Astro.
 
 ## Features
 
