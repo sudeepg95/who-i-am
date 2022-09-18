@@ -3,18 +3,16 @@ import { Icon } from "astro-icon";
 import ThemeSwitcher from "~/components/dumb/theme-switcher.astro";
 
 const navItems = [
+  { title: "Summary", url: "#summary" },
   { title: "Skills", url: "#skills" },
-  { title: "Features", url: "#features" },
-  { title: "Showcase", url: "#showcase" },
+  { title: "Resume", url: "https://drive.google.com/file/d/1ez2cOn9VhzDl45XweK6E0kcsXiX-7aSQ/view?usp=sharing" },
 ];
 ---
 
 <header
   id="page-header"
-  class="absolute bottom-0 z-10 flex items-center justify-between w-full px-8 py-4 text-default border-b border-transparent bg-default"
+  class="absolute bottom-0 z-10 flex items-center justify-end w-full px-8 py-4 text-default border-b border-transparent bg-default"
 >
-  <a class="flex items-center gap-3 hover:!text-default">
-  </a>
   <div>
     <div class="flex items-center gap-6">
       <nav class="hidden sm:block">
@@ -22,7 +20,7 @@ const navItems = [
           {
             navItems.map(({ title, url }) => (
               <li>
-                <a class="text-sm" href={url}>
+                <a class="text-sm" href={url} target={url.startsWith('https') ? "_blank" : "_self"}>
                   {title}
                 </a>
               </li>

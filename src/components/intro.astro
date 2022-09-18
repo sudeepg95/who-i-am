@@ -1,10 +1,21 @@
----
-import { Icon } from "astro-icon";
-import ContentSection from "~/components/dumb/content-section.astro";
----
-
-<ContentSection title="Summary" id="intro">
-  <Fragment slot="lead">
-    A <span class="text-primary">generalist</span> engineer with a passion to solve problems, currently focused on <span class="text-primary">Web Development</span>, Machine learning & Product building for the <span class="text-primary">7<span class="super">th </span></span>year of his career in Software development.
-  </Fragment>
-</ContentSection>
+<section
+  id="summary"
+  class="flex flex-col items-center gap-4 space-y-8 scroll-mt-24 h-[45rem] justify-center"
+>
+  <div class="flex flex-col items-center gap-4">
+    <h2
+      class="text-6xl font-extrabold tracking-tight text-center gradient-text"
+    >
+      Summary
+    </h2>
+  </div>
+  <p class="max-w-4xl text-2xl font-extrabold text-center">
+    A <span class="text-primary">generalist</span> engineer with a passion to solve
+    problems, currently focused on <span class="text-primary"
+      >Web Development</span
+    >, Machine learning & Product building for the <span class="text-primary"
+      >7<span class="super">th</span>
+    </span>year of his career in Software development.
+  </p>
+  <slot />
+</section>

@@ -1,0 +1,122 @@
+---
+import ContentSection from "~/components/dumb/content-section.astro";
+import CompatibilityList from "~/components/dumb/compatibility-list.astro";
+
+const frameworks = [
+  {
+    title: "React",
+    icon: "frameworks/react",
+    url: "https://reactjs.org/",
+  },
+  {
+    title: "Angular",
+    icon: "frameworks/angular",
+    url: "https://angular.io/",
+  },
+  {
+    title: "Vue",
+    icon: "frameworks/vue",
+    url: "https://vuejs.org/",
+  },
+  {
+    title: "Redux",
+    icon: "frameworks/redux",
+    url: "https://redux.js.org/",
+  },
+  {
+    title: "Gatsby",
+    icon: "frameworks/gatsby",
+    url: "https://www.gatsbyjs.com/",
+  },
+  {
+    title: "Express",
+    icon: "frameworks/express",
+    url: "https://expressjs.com/",
+  },
+];
+
+const programming = [
+  {
+    title: "JavaScript",
+    icon: "programming/javascript",
+    url: "https://developer.mozilla.org/en-US/docs/Web/javascript",
+  },
+  {
+    title: "TypeScript",
+    icon: "programming/typescript",
+    url: "https://www.typescriptlang.org/",
+  },
+  {
+    title: "Python",
+    icon: "programming/python",
+    url: "https://www.python.org/",
+  },
+  {
+    title: "Go",
+    icon: "programming/golang",
+    url: "https://go.dev/",
+  },
+  {
+    title: "Java",
+    icon: "programming/java",
+    url: "https://www.java.com/",
+  },
+  {
+    title: "Bash",
+    icon: "programming/console",
+    url: "https://linuxhint.com/bash-programming-guide/",
+  }
+];
+const others = [
+  {
+    title: "HTML5",
+    icon: "others/html5",
+    url: "https://developer.mozilla.org/en-US/docs/Glossary/HTML5",
+  },
+  {
+    title: "CSS3",
+    icon: "others/css3",
+    url: "https://developer.mozilla.org/en-US/docs/Web/CSS",
+  },
+  {
+    title: "Jest",
+    icon: "others/jest",
+    url: "https://jestjs.io/",
+  },
+  {
+    title: "GitHub",
+    icon: "fa-brands:github",
+    url: "https://github.com/",
+  },
+  {
+    title: "VSCode",
+    icon: "others/vscode",
+    url: "https://code.visualstudio.com/",
+  },
+  {
+    title: "Sublime",
+    icon: "others/sublime",
+    url: "https://www.sublimetext.com/",
+  },
+];
+---
+
+<ContentSection title="Skills" id="skills">
+  <!-- <Fragment slot="lead">
+    Astro <span class="text-primary">plays nice</span>. Bring your own UI{" "}
+    <span class="text-primary">framework</span>
+    and deploy to your favorite <span class="text-primary">platform</span>.
+  </Fragment> -->
+  <CompatibilityList
+    title="Frameworks"
+    data={frameworks}
+  />
+  <CompatibilityList
+    title="Programming"
+    data={programming}
+  />
+  <CompatibilityList
+    title="Others"
+    data={others}
+  />
+</ContentSection>
