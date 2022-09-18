@@ -1,2 +1,10 @@
 @import "global.css";
 @import "theme.css";
+
+#legendary-cursor-container canvas {
+    position: fixed;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
