@@ -1,0 +1,44 @@
+<div
+  id="starfield"
+  class="fixed inset-0 transition-opacity duration-500 -z-10 pointer-events-none"
+>
+  <canvas id="starfield-canvas"></canvas>
+</div>
+
+<script>
+  import { WebGLStarfield } from "../../types/webgl-starfield";
+
+  const canvas: HTMLCanvasElement = document.querySelector("#starfield-canvas");
+  let starfieldInstance: WebGLStarfield | null = null;
+
+  async function initStarfield() {
+    if (!canvas) return;
+
+    starfieldInstance = new WebGLStarfield(canvas, {
+      starCount: window.innerWidth < 768 ? 250 : 800,
+      speed: 0.1,
+      enableIntersectionObserver: true,
+      enableThemeObserver: true
+    });
+
+    const success = await starfieldInstance.init();
+    if (!success) {
+      console.error('WebGL Starfield initialization failed');
+    }
+  }
+
+  initStarfield();
+
+  window.addEventListener('beforeunload', () => {
+    if (starfieldInstance) {
+      starfieldInstance.destroy();
+    }
+  });
+</script>
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    #starfield {
+      @apply hidden;
+    }
+  }
+</style>

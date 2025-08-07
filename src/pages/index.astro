@@ -20,23 +20,37 @@ const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
     <title>Sudeep G</title>
     <meta name="description" content={description} />
 
-    <!-- fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
+    <script is:inline>
+      // Adaptive font loading based on device capabilities
+      const isLowEnd = navigator.hardwareConcurrency <= 4 ||
+                       (navigator.connection && (navigator.connection.effectiveType === 'slow-2g' || navigator.connection.effectiveType === '2g'));
+
+      if (!isLowEnd) {
+        // Preload for better devices
+        const fontPreload = document.createElement('link');
+        fontPreload.rel = 'preload';
+        fontPreload.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap';
+        fontPreload.as = 'style';
+        fontPreload.crossOrigin = 'anonymous';
+        document.head.appendChild(fontPreload);
+
+        const fontLink = document.createElement('link');
+        fontLink.rel = 'stylesheet';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap';
+        fontLink.crossOrigin = 'anonymous';
+        fontLink.media = 'print';
+        fontLink.onload = function() { this.media = 'all'; };
+        document.head.appendChild(fontLink);
+      } else {
+        document.documentElement.style.setProperty('--font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+      }
+    </script>
     <noscript>
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap"
+        crossorigin="anonymous"
       />
     </noscript>
 
@@ -70,20 +84,52 @@ const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
           }
         });
     </script>
-    <!-- <script type="module" async src="./legendary-cursor.js" /> -->
     <script>
-      import LegendaryCursor from "@sudeepg95/legendary-cursor";
-      LegendaryCursor.init({
-          lineSize:         0.05,
-          opacityDecrement: 0.55,
-          speedExpFactor:   0.8,
-          lineExpFactor:    0.6,
-          sparklesCount:    200,
-          maxOpacity:       0.99,
-          texture1: '/who-i-am/t3.webp',
-          texture2: '/who-i-am/t6_1.webp',
-          texture3: '/who-i-am/ts.webp'
-      });
+      async function initOptimizedCursor() {
+        const isLowEnd = navigator.hardwareConcurrency <= 4;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        let batteryLevel = 1;
+        if ('getBattery' in navigator) {
+          try {
+            const battery = await (navigator as any).getBattery();
+            batteryLevel = battery.level;
+          } catch (e) {
+            console.debug('Battery API not available');
+          }
+        }
+
+        const enableAnimations = !prefersReducedMotion && batteryLevel > 0.2;
+        const quality = isLowEnd || batteryLevel < 0.5 ? 'low' : 'high';
+
+        // Only enable cursor effects on devices with good performance
+        if (enableAnimations && quality !== 'low') {
+          try {
+            const LegendaryCursor = await import("@sudeepg95/legendary-cursor");
+
+            const config = {
+              lineSize: quality === 'high' ? 0.05 : 0.03,
+              opacityDecrement: 0.55,
+              speedExpFactor: 0.8,
+              lineExpFactor: 0.6,
+              sparklesCount: quality === 'high' ? 200 : 100,
+              maxOpacity: 0.99,
+              texture1: '/who-i-am/t3.webp',
+              texture2: '/who-i-am/t6_1.webp',
+              texture3: '/who-i-am/ts.webp'
+            };
+
+            LegendaryCursor.default.init(config);
+            console.debug('Legendary cursor initialized with', quality, 'quality');
+          } catch (error) {
+            console.debug('Cursor effects disabled due to error:', error);
+          }
+        } else {
+          console.debug('Cursor effects disabled for low-end device');
+        }
+      }
+      // Initialize after a short delay to not block initial render
+      setTimeout(initOptimizedCursor, 100);
     </script>
   </head>
   <body

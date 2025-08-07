@@ -1,9 +1,9 @@
 ---
-import Starfield from "./dumb/starfield.astro";
+import WebGLStarfield from "./dumb/webglstarfield.astro";
 ---
 
 <section class="relative h-full splash-section transition-all duration-500">
-  <Starfield />
+  <WebGLStarfield />
   <div class="relative grid h-full sm:justify-center place-items-center">
     <h2
       class="flex flex-col self-center gap-2 sm:gap-4 select-none"
@@ -22,11 +22,3 @@ import Starfield from "./dumb/starfield.astro";
     </h2>
   </div>
 </section>
-
-<style>
-  @media (prefers-reduced-motion: reduce) {
-    :global(#starfield) {
-      @apply hidden;
-    }
-  }
-</style>
