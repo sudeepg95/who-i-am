@@ -11,6 +11,8 @@
     "isolatedModules": true,
     // Astro will directly run your TypeScript code, no transpilation needed.
     "noEmit": true,
+    // Skip type checking of .d.ts files for performance
+    "skipLibCheck": true,
     // Alias `src/` to `~`
     "baseUrl": ".",
     "paths": {

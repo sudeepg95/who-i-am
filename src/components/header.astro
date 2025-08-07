@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon";
+import { Icon } from "astro-icon/components";
 import ThemeSwitcher from "~/components/dumb/theme-switcher.astro";
 
 const navItems = [
@@ -34,7 +34,7 @@ const navItems = [
         class="btn sm:hidden"
         aria-label="Navigation"
       >
-        <Icon pack="mdi" name="menu" class="h-8" />
+        <Icon name="mdi:menu" size={32} />
       </button>
       <ThemeSwitcher />
     </div>
@@ -48,7 +48,7 @@ const navItems = [
               class="btn"
               aria-label="Close navigation"
             >
-              <Icon pack="mdi" name="close" class="h-8" />
+              <Icon name="mdi:close" size={32} />
             </button>
           </header>
           <nav>
@@ -115,7 +115,8 @@ const navItems = [
 <style>
   .fixed-header {
     @apply fixed top-0 bottom-auto;
-    @apply text-default;
+    @apply text-default bg-default border-b border-transparent;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
   .modal.is-open {
     @apply block;

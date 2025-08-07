@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon";
+import { Icon } from "astro-icon/components";
 
 const links = [
   {
@@ -36,7 +36,7 @@ const links = [
             target="_blank"
           >
             <span class="sr-only">{link.description}</span>
-            <Icon class="h-full" name={link.icon} />
+            <Icon name={link.icon} size={48} />
           </a>
         </li>
       ))

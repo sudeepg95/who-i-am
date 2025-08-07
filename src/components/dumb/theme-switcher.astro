@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon";
+import { Icon } from "astro-icon/components";
 ---
 
 <!--
@@ -9,14 +9,14 @@ import { Icon } from "astro-icon";
 <button
   id="theme-switcher"
   type="button"
-  class="scale-0 transition-all origin-[right_center] duration-500 -ml-14"
+  class="transition-all origin-[right_center] duration-500"
 >
   <div id="icon-theme-light">
-    <Icon name="theme/light" class="h-8" />
+    <Icon name="theme/light" size={32} />
     <span class="sr-only">Use light theme</span>
   </div>
   <div id="icon-theme-dark" class="hidden">
-    <Icon name="theme/dark" class="h-8" />
+    <Icon name="theme/dark" size={32} />
     <span class="sr-only">Use dark theme</span>
   </div>
 </button>
@@ -54,7 +54,13 @@ import { Icon } from "astro-icon";
 </script>
 
 <style>
+  #theme-switcher {
+    transform: scale(0);
+    margin-left: -3.5rem; /* -ml-14 */
+  }
+  
   :global(.fixed-header) #theme-switcher {
-    @apply scale-100 ml-0;
+    transform: scale(1) !important;
+    margin-left: 0 !important;
   }
 </style>

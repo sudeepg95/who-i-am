@@ -75,16 +75,16 @@
         // give the line some width.
 
         // Just a helper function to make the code neater
-        function random(a, b) {
+        function random(a: number, b: number) {
             const alpha = Math.random();
             return a * (1.0 - alpha) + b * alpha;
         }
 
         // We're going to make a number of different coloured lines for fun.
         // "#e09f7d", "#ef5d60", "#ec4067", "#a01a7d", "#311847"
-        ["#ef5d60"].forEach((color, i) => {
+        ["#ef5d60"].forEach((color) => {
             // Store a few values for each lines' randomised spring movement
-            const line = {
+            const line: any = {
                 spring: random(0.02, 0.1),
                 friction: random(0.7, 0.95),
                 mouseVelocity: new Vec3(),
@@ -122,7 +122,7 @@
             window.addEventListener("mousemove", updateMouse, false);
         }
 
-        function updateMouse(e) {
+        function updateMouse(e: any) {
             if (e.changedTouches && e.changedTouches.length) {
                 e.x = e.changedTouches[0].pageX;
                 e.y = e.changedTouches[0].pageY;
@@ -143,7 +143,7 @@
         const tmp = new Vec3();
 
         requestAnimationFrame(update);
-        function update(t) {
+        function update(_t: number) {
             requestAnimationFrame(update);
 
             lines.forEach((line) => {

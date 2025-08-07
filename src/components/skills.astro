@@ -4,33 +4,38 @@ import CompatibilityList from "~/components/dumb/compatibility-list.astro";
 
 const frameworks = [
   {
+    title: "Next.js",
+    icon: "simple-icons:nextdotjs",
+    url: "https://nextjs.org/",
+  },
+  {
     title: "React",
-    icon: "frameworks/react",
+    icon: "simple-icons:react",
     url: "https://reactjs.org/",
   },
   {
     title: "Angular",
-    icon: "frameworks/angular",
+    icon: "simple-icons:angular",
     url: "https://angular.io/",
   },
   {
     title: "Vue",
-    icon: "frameworks/vue",
+    icon: "simple-icons:vuedotjs",
     url: "https://vuejs.org/",
   },
   {
     title: "Redux",
-    icon: "frameworks/redux",
+    icon: "simple-icons:redux",
     url: "https://redux.js.org/",
   },
-  {
-    title: "Gatsby",
-    icon: "frameworks/gatsby",
-    url: "https://www.gatsbyjs.com/",
-  },
+  // {
+  //   title: "Gatsby",
+  //   icon: "simple-icons:gatsby",
+  //   url: "https://www.gatsbyjs.com/",
+  // },
   {
     title: "Express",
-    icon: "frameworks/express",
+    icon: "simple-icons:express",
     url: "https://expressjs.com/",
   },
 ];
@@ -38,66 +43,71 @@ const frameworks = [
 const programming = [
   {
     title: "JavaScript",
-    icon: "programming/javascript",
+    icon: "simple-icons:javascript",
     url: "https://developer.mozilla.org/en-US/docs/Web/javascript",
   },
   {
     title: "TypeScript",
-    icon: "programming/typescript",
+    icon: "simple-icons:typescript",
     url: "https://www.typescriptlang.org/",
   },
   {
     title: "Python",
-    icon: "programming/python",
+    icon: "simple-icons:python",
     url: "https://www.python.org/",
   },
   {
     title: "Go",
-    icon: "programming/golang",
+    icon: "simple-icons:go",
     url: "https://go.dev/",
   },
   {
     title: "Java",
-    icon: "programming/java",
+    icon: "simple-icons:openjdk",
     url: "https://www.java.com/",
   },
   {
     title: "Bash",
-    icon: "programming/console",
+    icon: "simple-icons:gnubash",
     url: "https://linuxhint.com/bash-programming-guide/",
-  }
+  },
 ];
 const others = [
   {
     title: "HTML5",
-    icon: "others/html5",
+    icon: "simple-icons:html5",
     url: "https://developer.mozilla.org/en-US/docs/Glossary/HTML5",
   },
   {
     title: "CSS3",
-    icon: "others/css3",
+    icon: "simple-icons:css3",
     url: "https://developer.mozilla.org/en-US/docs/Web/CSS",
   },
   {
     title: "Jest",
-    icon: "others/jest",
+    icon: "simple-icons:jest",
     url: "https://jestjs.io/",
   },
   {
     title: "GitHub",
-    icon: "fa-brands:github",
+    icon: "simple-icons:github",
     url: "https://github.com/",
   },
   {
-    title: "VSCode",
-    icon: "others/vscode",
-    url: "https://code.visualstudio.com/",
+    title: "Cursor",
+    icon: "cursor",
+    url: "https://cursor.com/",
   },
   {
-    title: "Sublime",
-    icon: "others/sublime",
-    url: "https://www.sublimetext.com/",
+    title: "VSCode",
+    icon: "simple-icons:visualstudiocode",
+    url: "https://code.visualstudio.com/",
   },
+  // {
+  //   title: "Sublime",
+  //   icon: "simple-icons:sublimetext",
+  //   url: "https://www.sublimetext.com/",
+  // },
 ];
 ---
 
@@ -107,16 +117,7 @@ const others = [
     <span class="text-primary">framework</span>
     and deploy to your favorite <span class="text-primary">platform</span>.
   </Fragment> -->
-  <CompatibilityList
-    title="Frameworks"
-    data={frameworks}
-  />
-  <CompatibilityList
-    title="Programming"
-    data={programming}
-  />
-  <CompatibilityList
-    title="Others"
-    data={others}
-  />
+  <CompatibilityList title="Frameworks" data={frameworks} />
+  <CompatibilityList title="Programming" data={programming} />
+  <CompatibilityList title="Others" data={others} />
 </ContentSection>

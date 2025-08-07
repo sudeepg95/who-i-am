@@ -1,5 +1,5 @@
 ---
-import { Icon } from "astro-icon";
+import { Icon } from "astro-icon/components";
 const { title, data } = Astro.props;
 ---
 
@@ -15,7 +15,7 @@ const { title, data } = Astro.props;
         data.map(({ title, icon, url }) => (
           <li>
             <a class="flex flex-col items-center gap-2" href={url} target="_blank">
-              <Icon class="h-12" name={icon} />
+              <Icon name={icon} size={48} />
               <span>{title}</span>
             </a>
           </li>
@@ -23,5 +23,5 @@ const { title, data } = Astro.props;
       }
     </ul>
   </div>
-  <p class="text-sm text-right">...and more &rarr;</p>
+  <p class="text-sm text-right">...and more</p>
 </div>
