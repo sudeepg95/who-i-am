@@ -84,7 +84,7 @@
 
         // We're going to make a number of different coloured lines for fun.
         // "#e09f7d", "#ef5d60", "#ec4067", "#a01a7d", "#311847"
-        ["#ef5d60"].forEach((color) => {
+        [getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || "#ef5d60"].forEach((color) => {
             // Store a few values for each lines' randomised spring movement
             const line: any = {
                 spring: random(0.02, 0.1),

@@ -6,6 +6,19 @@
   --color-background: theme("colors.gray.50");
   --color-background-offset: theme("colors.gray.100");
   --color-border: rgb(17 24 39/0.1); /* gray.900 */
+  --color-backdrop: rgba(0, 0, 0, 0.5);
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-light: rgba(0, 0, 0, 0.06);
+  --color-text-shadow: rgba(0, 0, 0, 0.8);
+  --color-white: theme("colors.white");
+  --color-blue-300: theme("colors.blue.300");
+  --color-gray-300: theme("colors.gray.300");
+  --color-gray-400: theme("colors.gray.400");
+  --color-blue-500: theme("colors.blue.500");
+  --color-purple-500: theme("colors.purple.500");
+  --color-gradient-blue: rgba(59, 130, 246, 0.1);
+  --color-gradient-purple: rgba(147, 51, 234, 0.1);
+  --color-gradient-pink: rgba(236, 72, 153, 0.1);
 }
 
 [data-theme="dark"] {
@@ -16,4 +29,17 @@
   --color-background: theme("colors.black");
   --color-background-offset: theme("colors.gray.800");
   --color-border: rgb(249 250 251/0.1); /* gray.50 */
+  --color-backdrop: rgba(0, 0, 0, 0.5);
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-shadow-light: rgba(0, 0, 0, 0.2);
+  --color-text-shadow: rgba(0, 0, 0, 0.8);
+  --color-white: theme("colors.white");
+  --color-blue-300: theme("colors.blue.300");
+  --color-gray-300: theme("colors.gray.300");
+  --color-gray-400: theme("colors.gray.400");
+  --color-blue-500: theme("colors.blue.500");
+  --color-purple-500: theme("colors.purple.500");
+  --color-gradient-blue: rgba(59, 130, 246, 0.1);
+  --color-gradient-purple: rgba(147, 51, 234, 0.1);
+  --color-gradient-pink: rgba(236, 72, 153, 0.1);
 }

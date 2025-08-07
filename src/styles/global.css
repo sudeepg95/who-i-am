@@ -7,5 +7,7 @@ a,
 
 .gradient-text {
   @apply text-transparent bg-clip-text;
-  @apply bg-gradient-to-br from-gray-200 via-blue-500 to-red-500;
+  background: linear-gradient(to bottom right, var(--color-text), var(--color-blue-500), var(--color-primary));
+  -webkit-background-clip: text;
+  background-clip: text;
 }

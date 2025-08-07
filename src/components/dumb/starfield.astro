@@ -139,7 +139,7 @@
     }
 
     ctx.translate(width / 2, height / 2);
-    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-backdrop').trim() || "rgba(0, 0, 0, 0.4)";
     ctx.strokeStyle = "white";
     rafId = requestAnimationFrame(frame);
   }
