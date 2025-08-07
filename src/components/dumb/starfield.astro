@@ -1,4 +1,4 @@
-<div id="starfield" class="absolute inset-0 transition-opacity duration-500">
+<div id="starfield" class="fixed inset-0 transition-opacity duration-500 -z-10 pointer-events-none">
   <canvas id="starfield-canvas"></canvas>
 </div>
 
@@ -56,9 +56,7 @@
   const canvas: HTMLCanvasElement = document.querySelector("#starfield-canvas");
   const ctx = canvas.getContext("2d");
 
-  const container = document.querySelector("#starfield");
-  const resizeObserver = new ResizeObserver(setup);
-  resizeObserver.observe(container);
+  window.addEventListener('resize', setup);
 
   function updateStarfieldVisibility() {
     const theme = document.documentElement.dataset.theme;
@@ -67,7 +65,7 @@
     if (theme === "dark") {
       starfieldElement.style.opacity = "1";
       if (rafId === 0) {
-        setup(); // Restart animation if it was stopped
+        setup();
       }
     } else {
       starfieldElement.style.opacity = "0";
@@ -95,7 +93,8 @@
 
   function setup() {
     rafId > 0 && cancelAnimationFrame(rafId);
-    const { clientWidth: width, clientHeight: height } = container;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
@@ -117,7 +116,8 @@
   }
 
   function frame() {
-    const { clientWidth: width, clientHeight: height } = container;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     for (const star of stars) {
       star.update(width, height, SPEED);
