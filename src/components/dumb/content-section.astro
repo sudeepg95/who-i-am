@@ -6,12 +6,12 @@ const { title, id } = Astro.props;
   <div class="flex flex-col items-center gap-4">
     <slot name="eyebrow" />
     <h2
-      class="text-6xl font-extrabold tracking-tight text-center gradient-text"
+      class="text-6xl font-extrabold tracking-tight text-center gradient-text select-none"
     >
       {title}
     </h2>
   </div>
-  <p class="max-w-4xl text-2xl font-extrabold text-center">
+  <p class="max-w-4xl text-2xl font-extrabold text-center select-none">
     <slot name="lead" />
   </p>
   <slot />

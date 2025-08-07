@@ -6,7 +6,7 @@ const { title, data } = Astro.props;
 <div class="w-full max-w-6xl space-y-2">
   <div class="relative px-6 pt-8 pb-4 border bg-offset border-default">
     <h3
-      class="absolute top-0 px-4 py-1 text-xs tracking-tight uppercase -translate-y-1/2 border border-current rounded-full right-4 bg-default"
+      class="absolute top-0 px-4 py-1 text-xs tracking-tight uppercase -translate-y-1/2 border border-current rounded-full right-4 bg-default select-none"
     >
       {title}
     </h3>
@@ -16,12 +16,12 @@ const { title, data } = Astro.props;
           <li>
             <a class="flex flex-col items-center gap-2" href={url} target="_blank">
               <Icon name={icon} size={48} />
-              <span>{title}</span>
+              <span class="select-none">{title}</span>
             </a>
           </li>
         ))
       }
     </ul>
   </div>
-  <p class="text-sm text-right">...and more</p>
+  <p class="text-sm text-right select-none">...and more</p>
 </div>
