@@ -55,6 +55,8 @@
         const scene = new Transform();
 
         const lines = [];
+        let isVisible = true;
+        let animationId = 0;
 
         function resize() {
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -115,6 +117,8 @@
 
         // Add handlers to get mouse position
         const mouse = new Vec3();
+        let lastCursorUpdate = 0;
+
         if ("ontouchstart" in window) {
             window.addEventListener("touchstart", updateMouse, false);
             window.addEventListener("touchmove", updateMouse, false);
@@ -123,6 +127,10 @@
         }
 
         function updateMouse(e: any) {
+            // Throttle cursor updates to 60fps for better performance
+            const now = performance.now();
+            if (now - lastCursorUpdate < 16) return;
+            lastCursorUpdate = now;
             if (e.changedTouches && e.changedTouches.length) {
                 e.x = e.changedTouches[0].pageX;
                 e.y = e.changedTouches[0].pageY;
@@ -142,9 +150,30 @@
 
         const tmp = new Vec3();
 
-        requestAnimationFrame(update);
+        // Use Intersection Observer for animations to pause when not visible
+        const intersectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    isVisible = true;
+                    if (animationId === 0) {
+                        animationId = requestAnimationFrame(update);
+                    }
+                } else {
+                    isVisible = false;
+                    if (animationId > 0) {
+                        cancelAnimationFrame(animationId);
+                        animationId = 0;
+                    }
+                }
+            });
+        }, { threshold: 0.1 });
+
+        intersectionObserver.observe(canvasContainer);
+
+        animationId = requestAnimationFrame(update);
         function update(_t: number) {
-            requestAnimationFrame(update);
+            if (!isVisible) return;
+            animationId = requestAnimationFrame(update);
 
             lines.forEach((line) => {
                 // Update polyline input points

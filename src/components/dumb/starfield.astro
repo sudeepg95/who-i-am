@@ -3,7 +3,8 @@
 </div>
 
 <script>
-  const COUNT = 800;
+  // Reduce starfield star count on mobile for better performance
+  const COUNT = window.innerWidth < 768 ? 250 : 800;
   const SPEED = 0.1;
 
   class Star {
@@ -50,8 +51,9 @@
     }
   }
 
-  const stars = Array.from({ length: COUNT }, () => new Star(0, 0, 0));
+  let stars = Array.from({ length: COUNT }, () => new Star(0, 0, 0));
   let rafId = 0;
+  let isVisible = true;
 
   const canvas: HTMLCanvasElement = document.querySelector("#starfield-canvas");
   const ctx = canvas.getContext("2d");
@@ -64,7 +66,8 @@
 
     if (theme === "dark") {
       starfieldElement.style.opacity = "1";
-      if (rafId === 0) {
+      // Only start animation if element is visible
+      if (rafId === 0 && isVisible) {
         setup();
       }
     } else {
@@ -78,7 +81,27 @@
 
   updateStarfieldVisibility();
 
-  const observer = new MutationObserver((mutations) => {
+  // Use Intersection Observer for animations to pause when not visible
+  const intersectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        isVisible = true;
+        // Resume animation if theme allows it
+        updateStarfieldVisibility();
+      } else {
+        isVisible = false;
+        // Pause animation when not visible
+        if (rafId > 0) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+      }
+    });
+  }, { threshold: 0.1 });
+
+  intersectionObserver.observe(document.querySelector("#starfield"));
+
+  const themeObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
         updateStarfieldVisibility();
@@ -86,7 +109,7 @@
     });
   });
 
-  observer.observe(document.documentElement, {
+  themeObserver.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme']
   });
@@ -95,6 +118,12 @@
     rafId > 0 && cancelAnimationFrame(rafId);
     const width = window.innerWidth;
     const height = window.innerHeight;
+
+    // Update star count based on current screen size
+    const newCount = width < 768 ? 250 : 800;
+    if (stars.length !== newCount) {
+      stars = Array.from({ length: newCount }, () => new Star(0, 0, 0));
+    }
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
