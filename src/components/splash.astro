@@ -1,4 +1,9 @@
-<section class="relative h-full">
+---
+import Starfield from "./dumb/starfield.astro";
+---
+
+<section class="relative h-full splash-section transition-all duration-500">
+  <Starfield />
   <div class="relative grid h-full sm:justify-center place-items-center">
     <h2
       class="flex flex-col self-center gap-2 sm:gap-4"
@@ -19,6 +24,16 @@
 </section>
 
 <style>
+  [data-theme="light"] .splash-section {
+    background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(147, 51, 234, 0.1) 50%,
+      rgba(236, 72, 153, 0.1) 100%);
+  }
+
+  [data-theme="dark"] .splash-section {
+    background: transparent;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     :global(#starfield) {

@@ -1,4 +1,3 @@
-/* TODO: consider creating <Button> and <GradientText> components */
 a,
 .btn {
   @apply transition-colors duration-200;

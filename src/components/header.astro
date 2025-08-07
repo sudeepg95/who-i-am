@@ -11,7 +11,7 @@ const navItems = [
 
 <header
   id="page-header"
-  class="absolute bottom-0 z-10 flex items-center justify-end w-full px-8 py-4 text-default border-b border-transparent bg-default"
+  class="absolute bottom-0 z-10 flex items-center justify-end w-full px-8 py-4 text-default border-b border-transparent transition-all duration-300"
 >
   <div>
     <div class="flex items-center gap-6">
@@ -115,9 +115,30 @@ const navItems = [
 <style>
   .fixed-header {
     @apply fixed top-0 bottom-auto;
-    @apply text-default bg-default border-b border-transparent;
+    @apply text-default bg-default border-b border-default;
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
+
+  #page-header {
+    background-color: transparent;
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+  }
+
+  [data-theme="dark"] #page-header {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  [data-theme="dark"] #page-header.fixed-header {
+    text-shadow: none;
+  }
+
+  #page-header.fixed-header {
+    background-color: var(--color-background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .modal.is-open {
     @apply block;
   }

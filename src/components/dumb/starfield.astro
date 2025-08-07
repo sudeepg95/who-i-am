@@ -1,4 +1,4 @@
-<div id="starfield" class="absolute inset-0">
+<div id="starfield" class="absolute inset-0 transition-opacity duration-500">
   <canvas id="starfield-canvas"></canvas>
 </div>
 
@@ -59,6 +59,39 @@
   const container = document.querySelector("#starfield");
   const resizeObserver = new ResizeObserver(setup);
   resizeObserver.observe(container);
+
+  function updateStarfieldVisibility() {
+    const theme = document.documentElement.dataset.theme;
+    const starfieldElement = document.querySelector("#starfield") as HTMLElement;
+
+    if (theme === "dark") {
+      starfieldElement.style.opacity = "1";
+      if (rafId === 0) {
+        setup(); // Restart animation if it was stopped
+      }
+    } else {
+      starfieldElement.style.opacity = "0";
+      if (rafId > 0) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+    }
+  }
+
+  updateStarfieldVisibility();
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        updateStarfieldVisibility();
+      }
+    });
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
 
   function setup() {
     rafId > 0 && cancelAnimationFrame(rafId);
