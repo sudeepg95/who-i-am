@@ -93,14 +93,16 @@ const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
         if ('getBattery' in navigator) {
           try {
             const battery = await (navigator as any).getBattery();
-            batteryLevel = battery.level;
+            if (battery && typeof battery.level === 'number' && battery.level > 0) {
+              batteryLevel = battery.level;
+            }
           } catch (e) {
-            console.debug('Battery API not available');
+            console.debug('Battery API not available or failed', e);
           }
         }
 
         const enableAnimations = !prefersReducedMotion && batteryLevel > 0.2;
-        const quality = isLowEnd || batteryLevel < 0.2 ? 'low' : 'high';
+        const quality = isLowEnd || batteryLevel <= 0.2 ? 'low' : 'high';
 
         // Only enable cursor effects on devices with good performance
         if (enableAnimations && quality !== 'low') {
@@ -125,7 +127,7 @@ const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
             console.debug('Cursor effects disabled due to error:', error);
           }
         } else {
-          console.debug('Cursor effects disabled for low-end device');
+          console.debug('Cursor effects disabled', { isLowEnd, prefersReducedMotion, batteryLevel, quality });
         }
       }
       // Initialize after a short delay to not block initial render

@@ -31,7 +31,7 @@ export class WebGPUSnowfield implements SnowfieldRenderer {
 
   async init(): Promise<boolean> {
     if (!navigator.gpu) {
-      console.debug("WebGPU not supported, falling back to Canvas2D");
+      console.debug("WebGPU not supported, need to fall back to Canvas2D");
       return false;
     }
 

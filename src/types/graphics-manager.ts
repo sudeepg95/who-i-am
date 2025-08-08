@@ -75,9 +75,16 @@ export class GraphicsManager {
     if ("getBattery" in navigator) {
       try {
         const battery = await (navigator as any).getBattery();
-        this.capabilities.batteryLevel = battery.level;
-      } catch {
+        if (
+          battery &&
+          typeof battery.level === "number" &&
+          battery.level > 0
+        ) {
+          this.capabilities.batteryLevel = battery.level;
+        }
+      } catch (e) {
         this.capabilities.batteryLevel = 1;
+        console.debug("Battery API not available or failed", e);
       }
     }
 
