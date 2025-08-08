@@ -1,0 +1,143 @@
+<div
+  id="adaptive-graphics-container"
+  class="fixed inset-0 -z-10 pointer-events-none"
+>
+  <!-- WebGPU Starfield -->
+  <div id="webgpu-field" class="hidden">
+    <canvas id="webgpu-canvas"></canvas>
+  </div>
+
+  <!-- WebGL Fallback -->
+  <div id="webgl-starfield" class="hidden">
+    <canvas id="webgl-canvas"></canvas>
+  </div>
+
+  <!-- CSS Fallback -->
+  <div id="css-starfield" class="hidden">
+    <div class="css-stars"></div>
+    <div class="css-stars css-stars-2"></div>
+    <div class="css-stars css-stars-3"></div>
+  </div>
+</div>
+
+<script>
+  import { GraphicsManager } from "../types/graphics-manager";
+
+  const graphicsManager = new GraphicsManager();
+  graphicsManager.init();
+
+  window.addEventListener("beforeunload", () => {
+    graphicsManager.destroy();
+  });
+</script>
+
+<style>
+  .css-stars {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    animation: animStar 50s linear infinite;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .css-stars:after {
+    content: " ";
+    position: absolute;
+    top: 2000px;
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    box-shadow:
+      1780px 1253px #fff,
+      1819px 1547px #fff,
+      1979px 1425px #fff,
+      1785px 1805px #fff,
+      1816px 1695px #fff,
+      1962px 1437px #fff,
+      1685px 1608px #fff,
+      1944px 1391px #fff,
+      1824px 1485px #fff,
+      1874px 1262px #fff,
+      1741px 1584px #fff,
+      1885px 1559px #fff,
+      1706px 1756px #fff,
+      1876px 1633px #fff,
+      1722px 1325px #fff,
+      1726px 1263px #fff,
+      1735px 1687px #fff,
+      1861px 1426px #fff,
+      1748px 1416px #fff,
+      1778px 1477px #fff,
+      1745px 1523px #fff,
+      1812px 1355px #fff,
+      1774px 1764px #fff,
+      1820px 1627px #fff,
+      1879px 1339px #fff,
+      1726px 1414px #fff,
+      1742px 1678px #fff,
+      1883px 1547px #fff,
+      1726px 1557px #fff,
+      1762px 1586px #fff;
+  }
+
+  .css-stars-2 {
+    animation-delay: 1s;
+    animation-duration: 100s;
+  }
+
+  .css-stars-2:after {
+    width: 2px;
+    height: 2px;
+    box-shadow:
+      1780px 1253px #fff,
+      1819px 1547px #fff,
+      1979px 1425px #fff,
+      1785px 1805px #fff,
+      1816px 1695px #fff,
+      1962px 1437px #fff,
+      1685px 1608px #fff,
+      1944px 1391px #fff,
+      1824px 1485px #fff,
+      1874px 1262px #fff,
+      1741px 1584px #fff,
+      1885px 1559px #fff;
+  }
+
+  .css-stars-3 {
+    animation-delay: 2s;
+    animation-duration: 150s;
+  }
+
+  .css-stars-3:after {
+    width: 3px;
+    height: 3px;
+    box-shadow:
+      1780px 1253px #fff,
+      1819px 1547px #fff,
+      1979px 1425px #fff,
+      1785px 1805px #fff,
+      1816px 1695px #fff,
+      1962px 1437px #fff;
+  }
+
+  @keyframes animStar {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-2000px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #adaptive-graphics-container {
+      display: none !important;
+    }
+  }
+
+  [data-theme="light"] #adaptive-graphics-container {
+    opacity: 0 !important;
+  }
+</style>
