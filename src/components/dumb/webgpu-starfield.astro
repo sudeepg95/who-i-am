@@ -1,0 +1,74 @@
+<div id="starfield" class="fixed inset-0 transition-opacity duration-500 -z-10 pointer-events-none">
+  <canvas id="starfield-canvas"></canvas>
+</div>
+
+<script>
+import { WebGPUStarfield } from '../../types/webgpu-starfield';
+
+async function initWebGPUStarfield() {
+  const canvas = document.querySelector('#starfield-canvas') as HTMLCanvasElement;
+  if (!canvas) return null;
+
+  const starfield = new WebGPUStarfield(canvas);
+  const success = await starfield.init();
+  
+  if (success) {
+    console.debug('WebGPU starfield initialized successfully');
+    return starfield;
+  } else {
+    console.debug('WebGPU starfield initialization failed');
+    return null;
+  }
+}
+
+let starfieldInstance: WebGPUStarfield | null = null;
+
+function updateStarfieldVisibility() {
+  const theme = document.documentElement.dataset.theme;
+  const starfieldElement = document.querySelector("#starfield") as HTMLElement;
+
+  if (theme === "dark") {
+    starfieldElement.style.opacity = "1";
+    if (!starfieldInstance) {
+      initWebGPUStarfield().then(instance => {
+        starfieldInstance = instance;
+      });
+    }
+  } else {
+    starfieldElement.style.opacity = "0";
+    if (starfieldInstance) {
+      starfieldInstance.destroy();
+      starfieldInstance = null;
+    }
+  }
+}
+
+updateStarfieldVisibility();
+
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+      updateStarfieldVisibility();
+    }
+  });
+});
+
+observer.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});
+
+window.addEventListener('beforeunload', () => {
+  if (starfieldInstance) {
+    starfieldInstance.destroy();
+  }
+});
+</script>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    #starfield {
+      @apply hidden;
+    }
+  }
+</style>

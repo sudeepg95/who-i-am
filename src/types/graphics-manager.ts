@@ -2,7 +2,6 @@ import type {
   DeviceCapabilities,
   RendererType,
   StarfieldRenderer,
-  StarInterface,
 } from "./graphics";
 
 export class GraphicsManager {
@@ -28,46 +27,8 @@ export class GraphicsManager {
       prefersReducedMotion: window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches,
-      hasGoodGPU: this.detectGPUQuality(),
       batteryLevel: nav.getBattery ? undefined : 1,
     };
-  }
-
-  private detectGPUQuality(): boolean {
-    // Try to detect GPU capability through WebGL
-    try {
-      const canvas = document.createElement("canvas");
-      const gl =
-        canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-      if (!gl) return false;
-
-      const webglContext = gl as WebGLRenderingContext;
-      const renderer = webglContext.getParameter(webglContext.RENDERER);
-      const vendor = webglContext.getParameter(webglContext.VENDOR);
-
-      // Basic heuristics for good GPU detection
-      const goodGPUs = [
-        "adreno",
-        "mali-g",
-        "powervr",
-        "nvidia",
-        "amd",
-        "intel iris",
-        "intel uhd",
-        "apple",
-        "m1",
-        "m2",
-        "m3",
-        "rtx",
-        "gtx",
-        "radeon",
-      ];
-
-      const gpuString = `${vendor} ${renderer}`.toLowerCase();
-      return goodGPUs.some((gpu) => gpuString.includes(gpu));
-    } catch {
-      return false;
-    }
   }
 
   async init(): Promise<void> {
@@ -95,7 +56,6 @@ export class GraphicsManager {
       prefersReducedMotion,
       isLowEnd,
       isMobile,
-      hasGoodGPU,
       batteryLevel,
     } = this.capabilities;
 
@@ -113,7 +73,7 @@ export class GraphicsManager {
     }
 
     // WebGPU path for capable devices
-    if (supportsWebGPU && hasGoodGPU && !isLowEnd) {
+    if (supportsWebGPU && !isLowEnd) {
       try {
         const success = await this.initWebGPUSpritefield();
         if (success) {
@@ -126,32 +86,28 @@ export class GraphicsManager {
       }
     }
 
-    // WebGL fallback for desktop or good mobile devices
-    if (!isMobile || hasGoodGPU) {
-      try {
-        await this.initWebGLStarfield();
-        this.currentRenderer = "webgl";
-        console.debug("Using WebGL renderer");
-        return;
-      } catch (error) {
-        console.debug("WebGL fallback to CSS:", error);
-      }
+    if (isMobile && (!supportsWebGPU || isLowEnd)) {
+      this.currentRenderer = "css";
+      await this.initCSSStarfield();
+      console.debug("Using CSS renderer for compatibility");
+      return;
     }
 
-    // CSS fallback for low-end devices
-    await this.initCSSStarfield();
-    this.currentRenderer = "css";
-    console.debug("Using CSS renderer for compatibility");
+    await this.initWebGLStarfield();
+    this.currentRenderer = "webgl";
+    console.debug("Using WebGL renderer");
+    return;
   }
 
   private async initWebGPUSpritefield(): Promise<boolean> {
     const random = parseInt(String(Math.random() * 100));
-    if (random < 34) {
+    // if (random < 34) {
+    if (random < 50) {
       return this.initWebGPULaserfield();
-    } else if (random < 66) {
-      return this.initWebGPUSnowfield();
     } else {
-      return this.initWebGPUStarfield();
+      return this.initWebGPUSnowfield();
+      // } else if (random < 67) {
+      // return this.initWebGPUStarfield();
     }
   }
 
@@ -171,6 +127,7 @@ export class GraphicsManager {
       const success = await this.starfieldInstance.init();
 
       if (success) {
+        console.debug("WebGPU starfield initialized successfully");
         this.showRenderer("webgpu");
         return true;
       }
@@ -198,6 +155,7 @@ export class GraphicsManager {
       const success = await this.starfieldInstance.init();
 
       if (success) {
+        console.debug("WebGPU snowfield initialized successfully");
         this.showRenderer("webgpu");
         return true;
       }
@@ -225,6 +183,7 @@ export class GraphicsManager {
       const success = await this.starfieldInstance.init();
 
       if (success) {
+        console.debug("WebGPU laserfield initialized successfully");
         this.showRenderer("webgpu");
         return true;
       }
@@ -254,6 +213,7 @@ export class GraphicsManager {
       throw new Error("WebGL Starfield initialization failed");
     }
 
+    console.debug("WebGL starfield initialized successfully");
     this.showRenderer("webgl");
   }
 
@@ -277,7 +237,7 @@ export class GraphicsManager {
       });
 
     // Show selected renderer
-    const renderer = document.querySelector(`#${type}-starfield`);
+    const renderer = document.querySelector(`#${type}-field`);
     if (renderer) {
       renderer.classList.remove("hidden");
     }

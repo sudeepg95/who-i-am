@@ -3,7 +3,6 @@ export interface DeviceCapabilities {
   isMobile: boolean;
   supportsWebGPU: boolean;
   prefersReducedMotion: boolean;
-  hasGoodGPU: boolean;
   batteryLevel?: number;
 }
 

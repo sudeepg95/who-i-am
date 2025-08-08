@@ -83,7 +83,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
         velocity: vec3<f32>,
         life: f32,
         color: vec3<f32>,
-        _pad: f32,
+        twinkle: f32,
       }
 
       struct Uniforms {
@@ -146,7 +146,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
         velocity: vec3<f32>,
         life: f32,
         color: vec3<f32>,
-        _pad: f32,
+        twinkle: f32,
       }
 
       struct VertexOutput {
@@ -154,6 +154,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
         @location(0) alpha: f32,
         @location(1) color: vec3<f32>,
         @location(2) uv: vec2<f32>,
+        @location(3) twinkle: f32,
       }
 
       @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -163,7 +164,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
       fn vertexMain(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) instanceIndex: u32) -> VertexOutput {
         let star = stars[instanceIndex];
         
-        // Create quad vertices for point sprite
+        // Create quad vertices (to be oriented in screen space)
         var positions = array<vec2<f32>, 6>(
           vec2<f32>(-1.0, -1.0), vec2<f32>(1.0, -1.0), vec2<f32>(-1.0, 1.0),
           vec2<f32>(-1.0, 1.0), vec2<f32>(1.0, -1.0), vec2<f32>(1.0, 1.0)
@@ -176,33 +177,78 @@ export class WebGPUStarfield implements StarfieldRenderer {
         let depth = max(star.position.z, 0.01);
         let screenPos = star.position.xy / depth;
         
-        // Add quad offset for point sprite
-        let starSize = (star.size + star.position.z) * 0.012;
-        let finalPos = screenPos + quadPos * starSize * vec2<f32>(1.0 / aspect, 1.0);
+        // Enlarge base size for visibility
+        let baseSize = (star.size + star.position.z) * 0.014;
+
+        // Approximate screen-space motion direction: dominated by perspective pull toward center
+        // dir ~ -position.xy component (optionally nudged by velocity.xy)
+        var motionDir = -star.position.xy;
+        motionDir = motionDir + star.velocity.xy * 0.25; // small nudge from xy velocity
+        var dir = vec2<f32>(0.0, 1.0);
+        let dirLen = length(motionDir);
+        if (dirLen > 0.0001) {
+          dir = motionDir / dirLen;
+        }
+
+        // Account for aspect ratio so orientation matches on screen
+        let dirAspect = normalize(vec2<f32>(dir.x / aspect, dir.y));
+        let perp = vec2<f32>(-dirAspect.y, dirAspect.x);
+
+        // Estimate screen-space speed to scale trail length
+        let screenSpeed = (length(star.position.xy) * star.velocity.z) / (depth * depth + 1e-5);
+        let spriteWidth = baseSize;
+        let spriteLength = baseSize * (1.0 + screenSpeed * 300.0);
+
+        // Build oriented quad in screen space
+        let offset = perp * quadPos.x * spriteWidth + dirAspect * quadPos.y * spriteLength;
+        let finalPos = screenPos + offset;
         
         var output: VertexOutput;
         output.position = vec4<f32>(finalPos, 0.0, 1.0);
-        output.alpha = star.life * (1.0 - star.position.z) * 0.8;
+        output.alpha = clamp(star.life * (1.0 - star.position.z) * 1.2, 0.0, 1.0);
         output.color = star.color;
-        output.uv = quadPos;
+        output.uv = quadPos; // oriented-quad UV
+        output.twinkle = star.twinkle;
         
         return output;
       }
     `;
 
     const fragmentShaderCode = `
+      struct Uniforms {
+        time: f32,
+        resolution: vec2<f32>,
+        mousePos: vec2<f32>,
+        starCount: f32,
+        _padding: vec3<f32>,
+      }
+
+      @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+
       @fragment
       fn fragmentMain(
         @location(0) alpha: f32,
         @location(1) color: vec3<f32>,
-        @location(2) uv: vec2<f32>
+        @location(2) uv: vec2<f32>,
+        @location(3) twinkle: f32
       ) -> @location(0) vec4<f32> {
-        let dist2 = dot(uv, uv);
-        if (dist2 > 1.0) {
+        // Oriented rectangle mask in UV
+        if (abs(uv.x) > 1.0 || abs(uv.y) > 1.0) {
           discard;
         }
-        let falloff = pow(max(0.0, 1.0 - dist2), 6.0);
-        return vec4<f32>(color * falloff, alpha * falloff);
+
+        // Across-trail profile: soft edges, bright center
+        let across = 1.0 - abs(uv.x);
+        let widthProfile = pow(max(0.0, across), 3.0);
+
+        // Along-trail profile: brighter head (uv.y ~ 1), softer tail (uv.y ~ -1)
+        let headGlow = exp(- (1.0 - uv.y) * (1.0 - uv.y) * 4.0);
+        let tailGlow = exp(- (uv.y + 1.0) * (uv.y + 1.0) * 1.5);
+        let lengthProfile = max(headGlow, tailGlow);
+
+        let sparkle = 0.5 + 0.5 * sin(uniforms.time * 6.0 + twinkle);
+        let intensity = widthProfile * lengthProfile * sparkle;
+        return vec4<f32>(color * intensity, alpha * intensity);
       }
     `;
 
@@ -253,7 +299,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
       initialStarData[offset + 8] = r / maxRGB;
       initialStarData[offset + 9] = g / maxRGB;
       initialStarData[offset + 10] = b / maxRGB;
-      initialStarData[offset + 11] = 0.0; // pad
+      initialStarData[offset + 11] = Math.random() * Math.PI * 2; // twinkle phase
     }
 
     this.device.queue.writeBuffer(this.starBuffer, 0, initialStarData);
@@ -278,7 +324,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
       entries: [
         {
           binding: 0,
-          visibility: GPUShaderStage.VERTEX,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
           buffer: { type: "uniform" },
         },
         {

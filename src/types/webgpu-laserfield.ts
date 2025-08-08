@@ -90,7 +90,7 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         time: f32,              // offset 0, size 4
         resolution: vec2<f32>,  // offset 4, size 8
         mousePos: vec2<f32>,    // offset 12, size 8
-        starCount: f32,         // offset 20, size 4
+        laserCount: f32,         // offset 20, size 4
         _padding: vec3<f32>,    // padding to ensure 48-byte alignment
       }
 
@@ -113,7 +113,7 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         let attraction = mouseNorm * 0.001;
         laser.velocity = vec3<f32>(laser.velocity.xy + attraction, laser.velocity.z);
         
-        // Reset stars that go off screen
+        // Reset lasers that go off screen
         if (laser.position.z > 1.0 || 
             abs(laser.position.x) > 2.0 || 
             abs(laser.position.y) > 2.0) {
@@ -127,7 +127,7 @@ export class WebGPULaserfield implements LaserfieldRenderer {
           laser.life = 1.0;
         }
 
-        stars[index] = star;
+        lasers[index] = laser;
       }
     `;
 
@@ -136,11 +136,11 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         time: f32,              // offset 0, size 4
         resolution: vec2<f32>,  // offset 4, size 8
         mousePos: vec2<f32>,    // offset 12, size 8
-        starCount: f32,         // offset 20, size 4
+        laserCount: f32,         // offset 20, size 4
         _padding: vec3<f32>,    // padding to ensure 48-byte alignment
       }
 
-      struct Star {
+      struct Laser {
         position: vec3<f32>,
         size: f32,
         velocity: vec3<f32>,
@@ -158,11 +158,11 @@ export class WebGPULaserfield implements LaserfieldRenderer {
       }
 
       @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-      @group(0) @binding(1) var<storage, read> stars: array<Star>;
+      @group(0) @binding(1) var<storage, read> lasers: array<Laser>;
 
       @vertex
       fn vertexMain(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) instanceIndex: u32) -> VertexOutput {
-        let star = stars[instanceIndex];
+        let laser = lasers[instanceIndex];
         
         // Create quad vertices (to be oriented in screen space)
         var positions = array<vec2<f32>, 6>(
@@ -174,16 +174,16 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         let aspect = uniforms.resolution.x / uniforms.resolution.y;
         
         // Project 3D position to screen space
-        let depth = max(star.position.z, 0.01);
-        let screenPos = star.position.xy / depth;
+        let depth = max(laser.position.z, 0.01);
+        let screenPos = laser.position.xy / depth;
         
         // Enlarge base size for visibility
-        let baseSize = (star.size + star.position.z) * 0.014;
+        let baseSize = (laser.size + laser.position.z) * 0.014;
 
         // Approximate screen-space motion direction: dominated by perspective pull toward center
         // dir ~ -position.xy component (optionally nudged by velocity.xy)
-        var motionDir = -star.position.xy;
-        motionDir = motionDir + star.velocity.xy * 0.25; // small nudge from xy velocity
+        var motionDir = -laser.position.xy;
+        motionDir = motionDir + laser.velocity.xy * 0.25; // small nudge from xy velocity
         var dir = vec2<f32>(0.0, 1.0);
         let dirLen = length(motionDir);
         if (dirLen > 0.0001) {
@@ -195,7 +195,7 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         let perp = vec2<f32>(-dirAspect.y, dirAspect.x);
 
         // Estimate screen-space speed to scale trail length
-        let screenSpeed = (length(star.position.xy) * star.velocity.z) / (depth * depth + 1e-5);
+        let screenSpeed = (length(laser.position.xy) * laser.velocity.z) / (depth * depth + 1e-5);
         let spriteWidth = baseSize;
         let spriteLength = baseSize * (1.0 + screenSpeed * 300.0);
 
@@ -205,10 +205,10 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         
         var output: VertexOutput;
         output.position = vec4<f32>(finalPos, 0.0, 1.0);
-        output.alpha = clamp(star.life * (1.0 - star.position.z) * 1.2, 0.0, 1.0);
-        output.color = star.color;
+        output.alpha = clamp(laser.life * (1.0 - laser.position.z) * 1.2, 0.0, 1.0);
+        output.color = laser.color;
         output.uv = quadPos; // oriented-quad UV
-        output.twinkle = star.twinkle;
+        output.twinkle = laser.twinkle;
         
         return output;
       }
@@ -219,7 +219,7 @@ export class WebGPULaserfield implements LaserfieldRenderer {
         time: f32,
         resolution: vec2<f32>,
         mousePos: vec2<f32>,
-        starCount: f32,
+        laserCount: f32,
         _padding: vec3<f32>,
       }
 
@@ -263,11 +263,11 @@ export class WebGPULaserfield implements LaserfieldRenderer {
     });
 
     this.uniformBuffer = this.device.createBuffer({
-      size: 48, // Aligned to 16-byte boundary: time(4) + resolution(8) + mousePos(8) + starCount(4) + padding(12) + alignment = 48 bytes
+      size: 48, // Aligned to 16-byte boundary: time(4) + resolution(8) + mousePos(8) + laserCount(4) + padding(12) + alignment = 48 bytes
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    // Each Star struct in WGSL requires 48 bytes due to 16-byte alignment rules (vec3 pads to 16).
+    // Each Laser struct in WGSL requires 48 bytes due to 16-byte alignment rules (vec3 pads to 16).
     // Allocate 48 bytes per laser and write 12 floats for initial data.
     this.laserBuffer = this.device.createBuffer({
       size: this.laserCount * 48, // 12 floats per laser * 4 bytes = 48 bytes per laser
@@ -441,7 +441,7 @@ export class WebGPULaserfield implements LaserfieldRenderer {
     const currentTime = (performance.now() - this.startTime) / 1000;
 
     // WGSL std140-like layout: time (offset 0), padding 1 float, resolution.xy (floats 2-3),
-    // mousePos.xy (floats 4-5), starCount (float 6), remaining padding 7-11.
+    // mousePos.xy (floats 4-5), laserCount (float 6), remaining padding 7-11.
     const uniformData = new Float32Array(12);
     uniformData[0] = currentTime; // time
     // uniformData[1] is padding
