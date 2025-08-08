@@ -7,26 +7,26 @@ import type {
   GPUBindGroup,
 } from "./webgpu";
 import { GPUBufferUsage, GPUShaderStage } from "./webgpu";
-import type { StarfieldRenderer } from "./graphics";
+import type { StarfieldRenderer as SnowfieldRenderer } from "./graphics";
 
-export class WebGPUStarfield implements StarfieldRenderer {
+export class WebGPUSnowfield implements SnowfieldRenderer {
   private device: GPUDevice | null = null;
   private canvas: HTMLCanvasElement;
   private context: GPUCanvasContext | null = null;
   private renderPipeline: GPURenderPipeline | null = null;
   private computePipeline: GPUComputePipeline | null = null;
   private uniformBuffer: GPUBuffer | null = null;
-  private starBuffer: GPUBuffer | null = null;
+  private snowBuffer: GPUBuffer | null = null;
   private computeBindGroup: GPUBindGroup | null = null;
   private renderBindGroup: GPUBindGroup | null = null;
   private animationId: number = 0;
   private startTime: number = performance.now();
   private mousePos: [number, number] = [0, 0];
-  private starCount: number;
+  private snowCount: number;
 
-  constructor(canvas: HTMLCanvasElement, starCount = 800) {
+  constructor(canvas: HTMLCanvasElement, snowCount = 800) {
     this.canvas = canvas;
-    this.starCount = Math.min(starCount, window.innerWidth < 768 ? 400 : 800);
+    this.snowCount = Math.min(snowCount, window.innerWidth < 768 ? 400 : 800);
   }
 
   async init(): Promise<boolean> {
@@ -77,7 +77,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
     });
 
     const computeShaderCode = `
-      struct Star {
+      struct Snow {
         position: vec3<f32>,
         size: f32,
         velocity: vec3<f32>,
@@ -87,60 +87,60 @@ export class WebGPUStarfield implements StarfieldRenderer {
       }
 
       struct Uniforms {
-        time: f32,              // offset 0, size 4
-        resolution: vec2<f32>,  // offset 4, size 8
-        mousePos: vec2<f32>,    // offset 12, size 8
-        starCount: f32,         // offset 20, size 4
-        _padding: vec3<f32>,    // padding to ensure 48-byte alignment
+        time: f32,
+        resolution: vec2<f32>,
+        mousePos: vec2<f32>,  
+        snowCount: f32,
+        _padding: vec3<f32>,
       }
 
       @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-      @group(0) @binding(1) var<storage, read_write> stars: array<Star>;
+      @group(0) @binding(1) var<storage, read_write> snows: array<Snow>;
 
       @compute @workgroup_size(64)
       fn computeMain(@builtin(global_invocation_id) id: vec3<u32>) {
         let index = id.x;
-        if (index >= u32(uniforms.starCount)) { return; }
+        if (index >= u32(uniforms.snowCount)) { return; }
 
-        var star = stars[index];
-        let dt = 0.016; // ~60fps
+        var snow = snows[index];
+        let dt = 0.016;
 
         // Update position
-        star.position = star.position + star.velocity * dt;
+        snow.position = snow.position + snow.velocity * dt;
         
         // Warp speed effect towards mouse
         let mouseNorm = (uniforms.mousePos * 2.0 - 1.0) * vec2<f32>(1.0, -1.0);
         let attraction = mouseNorm * 0.001;
-        star.velocity = vec3<f32>(star.velocity.xy + attraction, star.velocity.z);
+        snow.velocity = vec3<f32>(snow.velocity.xy + attraction, snow.velocity.z);
         
-        // Reset stars that go off screen
-        if (star.position.z > 1.0 || 
-            abs(star.position.x) > 2.0 || 
-            abs(star.position.y) > 2.0) {
+        // Reset snow that go off screen
+        if (snow.position.z > 1.0 || 
+            abs(snow.position.x) > 2.0 || 
+            abs(snow.position.y) > 2.0) {
           let newDepth = 0.3 + fract(sin(f32(index) * 45.678) * 43758.5453) * 0.7;
-          star.position = vec3<f32>(
+          snow.position = vec3<f32>(
             (fract(sin(f32(index) * 12.9898) * 43758.5453) - 0.5) * 2.0 * newDepth,
             (fract(sin(f32(index) * 78.233) * 43758.5453) - 0.5) * 2.0 * newDepth,
             newDepth
           );
-          star.velocity = vec3<f32>(0.0, 0.0, 0.1 + fract(sin(f32(index) * 91.3737) * 43758.5453) * 0.05);
-          star.life = 1.0;
+          snow.velocity = vec3<f32>(0.0, 0.0, 0.1 + fract(sin(f32(index) * 91.3737) * 43758.5453) * 0.05);
+          snow.life = 1.0;
         }
 
-        stars[index] = star;
+        snows[index] = snow;
       }
     `;
 
     const vertexShaderCode = `
       struct Uniforms {
-        time: f32,              // offset 0, size 4
-        resolution: vec2<f32>,  // offset 4, size 8
-        mousePos: vec2<f32>,    // offset 12, size 8
-        starCount: f32,         // offset 20, size 4
-        _padding: vec3<f32>,    // padding to ensure 48-byte alignment
+        time: f32,
+        resolution: vec2<f32>,
+        mousePos: vec2<f32>,
+        snowCount: f32,
+        _padding: vec3<f32>,
       }
 
-      struct Star {
+      struct Snow {
         position: vec3<f32>,
         size: f32,
         velocity: vec3<f32>,
@@ -157,11 +157,11 @@ export class WebGPUStarfield implements StarfieldRenderer {
       }
 
       @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-      @group(0) @binding(1) var<storage, read> stars: array<Star>;
+      @group(0) @binding(1) var<storage, read> snows: array<Snow>;
 
       @vertex
       fn vertexMain(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) instanceIndex: u32) -> VertexOutput {
-        let star = stars[instanceIndex];
+        let snow = snows[instanceIndex];
         
         // Create quad vertices for point sprite
         var positions = array<vec2<f32>, 6>(
@@ -173,17 +173,17 @@ export class WebGPUStarfield implements StarfieldRenderer {
         let aspect = uniforms.resolution.x / uniforms.resolution.y;
         
         // Project 3D position to screen space
-        let depth = max(star.position.z, 0.01);
-        let screenPos = star.position.xy / depth;
+        let depth = max(snow.position.z, 0.01);
+        let screenPos = snow.position.xy / depth;
         
         // Add quad offset for point sprite
-        let starSize = (star.size + star.position.z) * 0.012;
-        let finalPos = screenPos + quadPos * starSize * vec2<f32>(1.0 / aspect, 1.0);
+        let snowSize = (snow.size + snow.position.z) * 0.012;
+        let finalPos = screenPos + quadPos * snowSize * vec2<f32>(1.0 / aspect, 1.0);
         
         var output: VertexOutput;
         output.position = vec4<f32>(finalPos, 0.0, 1.0);
-        output.alpha = star.life * (1.0 - star.position.z) * 0.8;
-        output.color = star.color;
+        output.alpha = snow.life * (1.0 - snow.position.z) * 0.8;
+        output.color = snow.color;
         output.uv = quadPos;
         
         return output;
@@ -217,46 +217,43 @@ export class WebGPUStarfield implements StarfieldRenderer {
     });
 
     this.uniformBuffer = this.device.createBuffer({
-      size: 48, // Aligned to 16-byte boundary: time(4) + resolution(8) + mousePos(8) + starCount(4) + padding(12) + alignment = 48 bytes
+      size: 48,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    // Each Star struct in WGSL requires 48 bytes due to 16-byte alignment rules (vec3 pads to 16).
-    // Allocate 48 bytes per star and write 12 floats for initial data.
-    this.starBuffer = this.device.createBuffer({
-      size: this.starCount * 48, // 12 floats per star * 4 bytes = 48 bytes per star
+    // Each Snow struct in WGSL requires 48 bytes due to 16-byte alignment rules (vec3 pads to 16).
+    // Allocate 48 bytes per snow and write 12 floats for initial data.
+    this.snowBuffer = this.device.createBuffer({
+      size: this.snowCount * 48, // 12 floats per snow * 4 bytes = 48 bytes per snow
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
 
-    const initialStarData = new Float32Array(this.starCount * 12);
-    for (let i = 0; i < this.starCount; i++) {
+    const initialSnowData = new Float32Array(this.snowCount * 12);
+    for (let i = 0; i < this.snowCount; i++) {
       const offset = i * 12;
-      // Choose depth first so we can keep x/y within clip space (|x|,|y| ≤ depth)
-      const depth = 0.3 + Math.random() * 0.7; // z in 0.3‒1.0
-      initialStarData[offset + 2] = depth;
-      initialStarData[offset + 0] = (Math.random() - 0.5) * 2 * depth; // x within [-depth, depth]
-      initialStarData[offset + 1] = (Math.random() - 0.5) * 2 * depth; // y within [-depth, depth]
-      initialStarData[offset + 3] = 1.0 + Math.random() * 2.0; // size
+      const depth = 0.3 + Math.random() * 0.7;
+      initialSnowData[offset + 2] = depth;
+      initialSnowData[offset + 0] = (Math.random() - 0.5) * 2 * depth;
+      initialSnowData[offset + 1] = (Math.random() - 0.5) * 2 * depth;
+      initialSnowData[offset + 3] = 1.0 + Math.random() * 2.0;
 
-      // velocity (vec3) + pad
-      initialStarData[offset + 4] = 0.0; // vel.x
-      initialStarData[offset + 5] = 0.0; // vel.y
-      initialStarData[offset + 6] = 0.1 + Math.random() * 0.05; // vel.z
-      initialStarData[offset + 7] = 1.0; // life
+      initialSnowData[offset + 4] = 0.0;
+      initialSnowData[offset + 5] = 0.0;
+      initialSnowData[offset + 6] = 0.1 + Math.random() * 0.05;
+      initialSnowData[offset + 7] = 1.0;
 
-      // vibrant color (vec3) + pad
       const r = 0.6 + Math.random() * 0.4;
       const g = 0.6 + Math.random() * 0.4;
       const b = 0.6 + Math.random() * 0.4;
       // Normalise so at least one channel is 1.0 for punchier brightness
       const maxRGB = Math.max(r, g, b);
-      initialStarData[offset + 8] = r / maxRGB;
-      initialStarData[offset + 9] = g / maxRGB;
-      initialStarData[offset + 10] = b / maxRGB;
-      initialStarData[offset + 11] = 0.0; // pad
+      initialSnowData[offset + 8] = r / maxRGB;
+      initialSnowData[offset + 9] = g / maxRGB;
+      initialSnowData[offset + 10] = b / maxRGB;
+      initialSnowData[offset + 11] = 0.0;
     }
 
-    this.device.queue.writeBuffer(this.starBuffer, 0, initialStarData);
+    this.device.queue.writeBuffer(this.snowBuffer, 0, initialSnowData);
 
     // Create separate bind group layouts for compute and render pipelines
     const computeBindGroupLayout = this.device.createBindGroupLayout({
@@ -329,7 +326,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
       layout: computeBindGroupLayout,
       entries: [
         { binding: 0, resource: { buffer: this.uniformBuffer } },
-        { binding: 1, resource: { buffer: this.starBuffer } },
+        { binding: 1, resource: { buffer: this.snowBuffer } },
       ],
     });
 
@@ -337,7 +334,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
       layout: renderBindGroupLayout,
       entries: [
         { binding: 0, resource: { buffer: this.uniformBuffer } },
-        { binding: 1, resource: { buffer: this.starBuffer } },
+        { binding: 1, resource: { buffer: this.snowBuffer } },
       ],
     });
   }
@@ -394,17 +391,13 @@ export class WebGPUStarfield implements StarfieldRenderer {
 
     const currentTime = (performance.now() - this.startTime) / 1000;
 
-    // WGSL std140-like layout: time (offset 0), padding 1 float, resolution.xy (floats 2-3),
-    // mousePos.xy (floats 4-5), starCount (float 6), remaining padding 7-11.
     const uniformData = new Float32Array(12);
-    uniformData[0] = currentTime; // time
-    // uniformData[1] is padding
-    uniformData[2] = this.canvas.width; // resolution.x
-    uniformData[3] = this.canvas.height; // resolution.y
-    uniformData[4] = this.mousePos[0]; // mousePos.x
-    uniformData[5] = this.mousePos[1]; // mousePos.y
-    uniformData[6] = this.starCount; // starCount
-    // uniformData[7-11] remain 0 as padding
+    uniformData[0] = currentTime;
+    uniformData[2] = this.canvas.width;
+    uniformData[3] = this.canvas.height;
+    uniformData[4] = this.mousePos[0];
+    uniformData[5] = this.mousePos[1];
+    uniformData[6] = this.snowCount;
 
     this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformData);
 
@@ -413,7 +406,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
     const computePass = commandEncoder.beginComputePass();
     computePass.setPipeline(this.computePipeline);
     computePass.setBindGroup(0, this.computeBindGroup);
-    computePass.dispatchWorkgroups(Math.ceil(this.starCount / 64));
+    computePass.dispatchWorkgroups(Math.ceil(this.snowCount / 64));
     computePass.end();
 
     const renderPass = commandEncoder.beginRenderPass({
@@ -429,7 +422,7 @@ export class WebGPUStarfield implements StarfieldRenderer {
 
     renderPass.setPipeline(this.renderPipeline);
     renderPass.setBindGroup(0, this.renderBindGroup);
-    renderPass.draw(6, this.starCount);
+    renderPass.draw(6, this.snowCount);
     renderPass.end();
 
     this.device.queue.submit([commandEncoder.finish()]);

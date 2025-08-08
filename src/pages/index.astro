@@ -100,7 +100,7 @@ const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
         }
 
         const enableAnimations = !prefersReducedMotion && batteryLevel > 0.2;
-        const quality = isLowEnd || batteryLevel < 0.5 ? 'low' : 'high';
+        const quality = isLowEnd || batteryLevel < 0.2 ? 'low' : 'high';
 
         // Only enable cursor effects on devices with good performance
         if (enableAnimations && quality !== 'low') {

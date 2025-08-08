@@ -1,0 +1,74 @@
+<div id="snowfield" class="fixed inset-0 transition-opacity duration-500 -z-10 pointer-events-none">
+  <canvas id="snowfield-canvas"></canvas>
+</div>
+
+<script>
+import { WebGPUSnowfield } from '../../types/webgpu-snowfield';
+
+async function initWebGPUSnowfield() {
+  const canvas = document.querySelector('#snowfield-canvas') as HTMLCanvasElement;
+  if (!canvas) return null;
+
+  const snowfield = new WebGPUSnowfield(canvas);
+  const success = await snowfield.init();
+  
+  if (success) {
+    console.debug('WebGPU snowfield initialized successfully');
+    return snowfield;
+  } else {
+    console.debug('WebGPU snowfield initialization failed');
+    return null;
+  }
+}
+
+let snowfieldInstance: WebGPUSnowfield | null = null;
+
+function updateSnowfieldVisibility() {
+  const theme = document.documentElement.dataset.theme;
+  const snowfieldElement = document.querySelector("#snowfield") as HTMLElement;
+
+  if (theme === "dark") {
+    snowfieldElement.style.opacity = "1";
+    if (!snowfieldInstance) {
+      initWebGPUSnowfield().then(instance => {
+        snowfieldInstance = instance;
+      });
+    }
+  } else {
+    snowfieldElement.style.opacity = "0";
+    if (snowfieldInstance) {
+      snowfieldInstance.destroy();
+      snowfieldInstance = null;
+    }
+  }
+}
+
+updateSnowfieldVisibility();
+
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+      updateSnowfieldVisibility();
+    }
+  });
+});
+
+observer.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});
+
+window.addEventListener('beforeunload', () => {
+  if (snowfieldInstance) {
+    snowfieldInstance.destroy();
+  }
+});
+</script>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    #snowfield {
+      @apply hidden;
+    }
+  }
+</style>
