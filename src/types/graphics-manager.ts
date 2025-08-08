@@ -75,11 +75,7 @@ export class GraphicsManager {
     if ("getBattery" in navigator) {
       try {
         const battery = await (navigator as any).getBattery();
-        if (
-          battery &&
-          typeof battery.level === "number" &&
-          battery.level > 0
-        ) {
+        if (battery && typeof battery.level === "number" && battery.level > 0) {
           this.capabilities.batteryLevel = battery.level;
         }
       } catch (e) {
@@ -119,7 +115,7 @@ export class GraphicsManager {
     // WebGPU path for capable devices
     if (supportsWebGPU && hasGoodGPU && !isLowEnd) {
       try {
-        const success = await this.initWebGPUStarfield();
+        const success = await this.initWebGPUSpritefield();
         if (success) {
           this.currentRenderer = "webgpu";
           console.debug("Using WebGPU renderer for optimal performance");
@@ -148,6 +144,14 @@ export class GraphicsManager {
     console.debug("Using CSS renderer for compatibility");
   }
 
+  private async initWebGPUSpritefield(): Promise<boolean> {
+    const random = parseInt(String(Math.random() * 100));
+    if (random < 50) {
+      return this.initWebGPUStarfield();
+    } else {
+      return this.initWebGPUSnowfield();
+    }
+  }
   private async initWebGPUStarfield(): Promise<boolean> {
     try {
       const { WebGPUStarfield } = await import("./webgpu-starfield");
@@ -157,7 +161,10 @@ export class GraphicsManager {
 
       if (!canvas) return false;
 
-      this.starfieldInstance = new WebGPUStarfield(canvas, this.getStarCount());
+      this.starfieldInstance = new WebGPUStarfield(
+        canvas,
+        this.getSpriteCount(),
+      );
       const success = await this.starfieldInstance.init();
 
       if (success) {
@@ -172,6 +179,33 @@ export class GraphicsManager {
     }
   }
 
+  private async initWebGPUSnowfield(): Promise<boolean> {
+    try {
+      const { WebGPUSnowfield } = await import("./webgpu-snowfield");
+      const canvas = document.querySelector(
+        "#webgpu-canvas",
+      ) as HTMLCanvasElement;
+
+      if (!canvas) return false;
+
+      this.starfieldInstance = new WebGPUSnowfield(
+        canvas,
+        this.getSpriteCount(),
+      );
+      const success = await this.starfieldInstance.init();
+
+      if (success) {
+        this.showRenderer("webgpu");
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.debug("WebGPU snowfield import/initialization failed:", error);
+      return false;
+    }
+  }
+
   private async initWebGLStarfield(): Promise<void> {
     const { WebGLStarfield } = await import("./webgl-starfield");
     const canvas = document.querySelector("#webgl-canvas") as HTMLCanvasElement;
@@ -179,7 +213,7 @@ export class GraphicsManager {
 
     // Create starfield instance with adaptive settings
     this.starfieldInstance = new WebGLStarfield(canvas, {
-      starCount: this.getStarCount(),
+      starCount: this.getSpriteCount(),
       speed: 0.1,
       enableIntersectionObserver: false, // GraphicsManager handles visibility
       enableThemeObserver: false, // GraphicsManager handles theme changes
@@ -197,7 +231,7 @@ export class GraphicsManager {
     this.showRenderer("css");
   }
 
-  private getStarCount(): number {
+  private getSpriteCount(): number {
     const { isMobile, isLowEnd } = this.capabilities;
 
     if (isLowEnd) return 200;
