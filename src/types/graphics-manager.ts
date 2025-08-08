@@ -146,12 +146,15 @@ export class GraphicsManager {
 
   private async initWebGPUSpritefield(): Promise<boolean> {
     const random = parseInt(String(Math.random() * 100));
-    if (random < 50) {
-      return this.initWebGPUStarfield();
-    } else {
+    if (random < 34) {
+      return this.initWebGPULaserfield();
+    } else if (random < 66) {
       return this.initWebGPUSnowfield();
+    } else {
+      return this.initWebGPUStarfield();
     }
   }
+
   private async initWebGPUStarfield(): Promise<boolean> {
     try {
       const { WebGPUStarfield } = await import("./webgpu-starfield");
@@ -202,6 +205,33 @@ export class GraphicsManager {
       return false;
     } catch (error) {
       console.debug("WebGPU snowfield import/initialization failed:", error);
+      return false;
+    }
+  }
+
+  private async initWebGPULaserfield(): Promise<boolean> {
+    try {
+      const { WebGPULaserfield } = await import("./webgpu-laserfield");
+      const canvas = document.querySelector(
+        "#webgpu-canvas",
+      ) as HTMLCanvasElement;
+
+      if (!canvas) return false;
+
+      this.starfieldInstance = new WebGPULaserfield(
+        canvas,
+        this.getSpriteCount(),
+      );
+      const success = await this.starfieldInstance.init();
+
+      if (success) {
+        this.showRenderer("webgpu");
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.debug("WebGPU laserfield import/initialization failed:", error);
       return false;
     }
   }

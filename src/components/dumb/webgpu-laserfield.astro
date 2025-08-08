@@ -1,0 +1,74 @@
+<div id="laserfield" class="fixed inset-0 transition-opacity duration-500 -z-10 pointer-events-none">
+  <canvas id="laserfield-canvas"></canvas>
+</div>
+
+<script>
+import { WebGPULaserfield } from '../../types/webgpu-laserfield';
+
+async function initWebGPULaserfield() {
+  const canvas = document.querySelector('#laserfield-canvas') as HTMLCanvasElement;
+  if (!canvas) return null;
+
+  const laserfield = new WebGPULaserfield(canvas);
+  const success = await laserfield.init();
+  
+  if (success) {
+    console.debug('WebGPU laserfield initialized successfully');
+    return laserfield;
+  } else {
+    console.debug('WebGPU laserfield initialization failed');
+    return null;
+  }
+}
+
+let laserfieldInstance: WebGPULaserfield | null = null;
+
+function updateLaserfieldVisibility() {
+  const theme = document.documentElement.dataset.theme;
+  const laserfieldElement = document.querySelector("#laserfield") as HTMLElement;
+
+  if (theme === "dark") {
+    laserfieldElement.style.opacity = "1";
+    if (!laserfieldInstance) {
+      initWebGPULaserfield().then(instance => {
+        laserfieldInstance = instance;
+      });
+    }
+  } else {
+    laserfieldElement.style.opacity = "0";
+    if (laserfieldInstance) {
+      laserfieldInstance.destroy();
+      laserfieldInstance = null;
+    }
+  }
+}
+
+updateLaserfieldVisibility();
+
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+      updateLaserfieldVisibility();
+    }
+  });
+});
+
+observer.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});
+
+window.addEventListener('beforeunload', () => {
+  if (laserfieldInstance) {
+    laserfieldInstance.destroy();
+  }
+});
+</script>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    #laserfield {
+      @apply hidden;
+    }
+  }
+</style>
