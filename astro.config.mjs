@@ -5,6 +5,6 @@ import { defineConfig } from "astro/config";
 
 export default defineConfig({
   site: "https://sudeepg95.github.io",
-  base: "/who-i-am",
+  base: "/me",
   integrations: [tailwind(), icon()],
 });
