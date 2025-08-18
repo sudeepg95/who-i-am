@@ -1,4 +1,4 @@
-import type { StarInterface } from "./graphics";
+import type { StarInterface } from "~/types";
 
 export class Star implements StarInterface {
   x: number;

@@ -1,28 +1,8 @@
 ---
 import { Icon } from "astro-icon/components";
+import { userProfile } from "~/lib/user-profile-manager";
 
-const links = [
-  {
-    url: "https://wa.me/+919020709002",
-    description: "Sudeep via WhatsApp",
-    icon: "fa-brands:whatsapp",
-  },
-  {
-    url: "mailto:sudeepg95@gmail.com",
-    description: "Sudeep via Email",
-    icon: "fa-solid:envelope",
-  },
-  {
-    url: "https://github.com/sudeepg95",
-    description: "Sudeep on GitHub",
-    icon: "fa-brands:github-alt",
-  },
-  {
-    url: "https://linkedin.com/in/sudeepg95",
-    description: "Sudeep on LinkedIn",
-    icon: "fa-brands:linkedin",
-  },
-];
+const links = userProfile.getContactLinks();
 ---
 
 <footer class="relative flex items-center justify-center py-8 z-10">

@@ -4,10 +4,13 @@ import Footer from "~/components/footer.astro";
 import Header from "~/components/header.astro";
 import Intro from "~/components/intro.astro";
 import Splash from "~/components/splash.astro";
+import { userProfile } from "~/lib/user-profile-manager";
 import "~/styles/index.css";
 
 const { site } = Astro;
-const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
+const personalInfo = userProfile.getPersonalInfo();
+const description = personalInfo.description;
+const name = personalInfo.name;
 ---
 
 <html lang="en" class="h-full motion-safe:scroll-smooth" data-theme="dark">
@@ -17,7 +20,7 @@ const description = "Sudeep G | Lead Software Engineer | Bangalore, India";
     <link rel="icon" href="/me/favicon.ico" sizes="any" />
     <link rel="icon" href="/me/favicon.svg" type="image/svg+xml" />
 
-    <title>Sudeep G</title>
+    <title>{name}</title>
     <meta name="description" content={description} />
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

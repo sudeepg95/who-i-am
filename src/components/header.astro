@@ -1,12 +1,9 @@
 ---
 import { Icon } from "astro-icon/components";
 import ThemeSwitcher from "~/components/dumb/theme-switcher.astro";
+import { userProfile } from "~/lib/user-profile-manager";
 
-const navItems = [
-  { title: "Summary", url: "#summary" },
-  { title: "Skills", url: "#skills" },
-  { title: "Resume", url: "https://drive.google.com/file/d/1ez2cOn9VhzDl45XweK6E0kcsXiX-7aSQ/view?usp=sharing" },
-];
+const navItems = userProfile.getFullNavigationItems();
 ---
 
 <header

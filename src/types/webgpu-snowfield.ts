@@ -5,9 +5,9 @@ import type {
   GPUComputePipeline,
   GPUBuffer,
   GPUBindGroup,
-} from "./webgpu";
-import { GPUBufferUsage, GPUShaderStage } from "./webgpu";
-import type { StarfieldRenderer as SnowfieldRenderer } from "./graphics";
+  StarfieldRenderer as SnowfieldRenderer,
+} from "~/types";
+import { GPUBufferUsage, GPUShaderStage } from "~/types";
 
 export class WebGPUSnowfield implements SnowfieldRenderer {
   private device: GPUDevice | null = null;

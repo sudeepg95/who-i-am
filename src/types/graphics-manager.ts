@@ -2,7 +2,7 @@ import type {
   DeviceCapabilities,
   RendererType,
   StarfieldRenderer,
-} from "./graphics";
+} from "~/types";
 
 export class GraphicsManager {
   private currentRenderer: RendererType = "none";

@@ -1,5 +1,5 @@
-import { Star } from "./star";
-import type { StarfieldRenderer } from "./graphics";
+import { Star } from "~/types";
+import type { StarfieldRenderer } from "~/types";
 
 export interface WebGLStarfieldOptions {
   starCount?: number;

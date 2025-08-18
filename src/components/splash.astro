@@ -1,5 +1,8 @@
 ---
-import AdaptiveGraphics from "./adaptive-graphics.astro";
+import AdaptiveGraphics from "~/components/adaptive-graphics.astro";
+import { userProfile } from "~/lib/user-profile-manager";
+
+const personalInfo = userProfile.getPersonalInfo();
 ---
 
 <section class="relative h-full splash-section transition-all duration-500">
@@ -11,13 +14,13 @@ import AdaptiveGraphics from "./adaptive-graphics.astro";
       <div
         class="font-extrabold tracking-tighter text-center text-9xl gradient-text"
       >
-        Sudeep G
+        {personalInfo.name}
       </div>
       <div
       class="font-extrabold tracking-tighter text-center text-xl gradient-text"
     >
-      Lead Software Engineer
-      <br /> Bengaluru, India.
+      {personalInfo.title}
+      <br /> {personalInfo.location.displayName}
     </div>
     </h2>
   </div>

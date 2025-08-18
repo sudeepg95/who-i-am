@@ -5,9 +5,9 @@ import type {
   GPUComputePipeline,
   GPUBuffer,
   GPUBindGroup,
-} from "./webgpu";
-import { GPUBufferUsage, GPUShaderStage } from "./webgpu";
-import type { StarfieldRenderer as LaserfieldRenderer } from "./graphics";
+  StarfieldRenderer as LaserfieldRenderer,
+} from "~/types";
+import { GPUBufferUsage, GPUShaderStage } from "~/types";
 
 export class WebGPULaserfield implements LaserfieldRenderer {
   private device: GPUDevice | null = null;
